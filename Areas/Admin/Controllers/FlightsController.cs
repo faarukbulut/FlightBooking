@@ -27,6 +27,7 @@ namespace FlightBooking.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFlight(CreateFlightDto createFlightDto)
         {
             await _flightService.CreateFlightAsync(createFlightDto);
