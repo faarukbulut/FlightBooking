@@ -104,5 +104,30 @@ namespace FlightBooking.Services.BookingServices
 
             return (passenger.Name, passenger.Surname);
         }
+
+        public async Task<string> GetPnrByPassengerIdAsync(string passengerId)
+        {
+            var booking = await _bookingCollection.Find(x => x.Passengers.Any(p => p.PassengerId == passengerId)).FirstOrDefaultAsync();
+
+            if (booking == null)
+                return null;
+
+            return booking.PnrNumber;
+        }
+
+        public async Task<string> GetGateByPassengerIdAsync(string passengerId)
+        {
+            var booking = await _bookingCollection.Find(x => x.Passengers.Any(p => p.PassengerId == passengerId)).FirstOrDefaultAsync();
+
+            if (booking == null)
+                return null;
+
+            var passenger = booking.Passengers.FirstOrDefault(p => p.PassengerId == passengerId);
+
+            if (passenger == null)
+                return null;
+
+            return passenger.Gate;
+        }
     }
 }

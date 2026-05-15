@@ -20,10 +20,15 @@ namespace FlightBooking.Areas.Admin.Controllers
 
 
             var passenger = await _bookingService.GetPassengerNameByIdAsync(id);
+            var pnrNumber = await _bookingService.GetPnrByPassengerIdAsync(id);
+            var gate = await _bookingService.GetGateByPassengerIdAsync(id);
 
             ViewBag.Name = passenger.Name;
             ViewBag.Surname = passenger.Surname;
             ViewBag.PassengerName = passenger.Name + " " + passenger.Surname;
+            ViewBag.PnrNumber = pnrNumber;
+            ViewBag.Pnr = pnrNumber;   // modal'da @ViewBag.Pnr kullanılıyor
+            ViewBag.Gate = gate;
 
             return View();
         }
