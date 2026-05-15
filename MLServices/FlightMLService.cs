@@ -1,15 +1,14 @@
 ﻿using FlightBooking.MLModels;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 
 namespace FlightBooking.MLServices
 {
-    public class FlightMLService
+    public class FlightMlService
     {
         private readonly MLContext _context;
         private ITransformer _model;
 
-        public FlightMLService()
+        public FlightMlService()
         {
             _context = new MLContext();
         }
