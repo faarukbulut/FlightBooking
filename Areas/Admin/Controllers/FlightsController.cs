@@ -1,4 +1,5 @@
-﻿using FlightBooking.Dtos.FlightDtos;
+﻿using System.Threading.Tasks;
+using FlightBooking.Dtos.FlightDtos;
 using FlightBooking.Services.FlightServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,9 +35,13 @@ namespace FlightBooking.Areas.Admin.Controllers
             return RedirectToAction("FlightList");
         }
 
-        public IActionResult FlightDetail(string id)
+        public async Task<IActionResult> FlightDetail(string id)
         {
-            return View();
+            var flight = await _flightService.GetFlightByIdAsync(id);
+            var passengers = await _flightService.GetFlightDetailsWithPassengersAsync(id);
+
+            ViewBag.Flight = flight;
+            return View(passengers);
         }
     }
 }
