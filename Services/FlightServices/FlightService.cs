@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FlightBooking.Dtos.FlightDtos;
+using FlightBooking.Dtos.PassengerDtos;
 using FlightBooking.Entities;
 using FlightBooking.Settings;
 using MongoDB.Driver;
@@ -10,12 +11,14 @@ namespace FlightBooking.Services.FlightServices
     {
         private readonly IMapper _mapper;
         private readonly IMongoCollection<Flight> _flightCollection;
+        private readonly IMongoCollection<Booking> _bookingCollection;
 
         public FlightService(IMapper mapper, IDatabaseSettings _databaseSettings)
         {
             var client = new MongoClient(_databaseSettings.ConnectionString);
             var database = client.GetDatabase(_databaseSettings.DatabaseName);
             _flightCollection = database.GetCollection<Flight>(_databaseSettings.FlightCollectionName);
+            _bookingCollection = database.GetCollection<Booking>(_databaseSettings.BookingCollectionName);
 
             _mapper = mapper;
         }
@@ -47,6 +50,24 @@ namespace FlightBooking.Services.FlightServices
         {
             var values = _mapper.Map<Flight>(updateFlightDto);
             await _flightCollection.FindOneAndReplaceAsync(x => x.FlightId == updateFlightDto.FlightId, values);
+        }
+
+        public async Task<List<PassengerListItemDto>> GetFlightDetailsWithPassengersAsync(string id)
+        {
+            var bookings = await _bookingCollection.Find(b => b.FlightId == id).ToListAsync();
+
+            var passengers = bookings.SelectMany(b => b.Passengers.Select(p => new PassengerListItemDto
+            {
+                Name = p.Name,
+                Surname = p.Surname,
+                Email = b.ContactEmail,
+                Gender = p.Gender,
+                PassengerType = p.PassengerType,
+                Pnr = b.BookingId,
+                Phone = b.ContactPhone
+            })).ToList();
+
+            return passengers;
         }
     }
 }
