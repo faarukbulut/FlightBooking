@@ -89,5 +89,20 @@ namespace FlightBooking.Services.BookingServices
 
             return pnr;
         }
+
+        public async Task<(string Name, string Surname)> GetPassengerNameByIdAsync(string passengerId)
+        {
+            var booking = await _bookingCollection.Find(x => x.Passengers.Any(p => p.PassengerId == passengerId)).FirstOrDefaultAsync();
+
+            if (booking == null)
+                return (null, null);
+
+            var passenger = booking.Passengers.FirstOrDefault(p => p.PassengerId == passengerId);
+
+            if (passenger == null)
+                return (null, null);
+
+            return (passenger.Name, passenger.Surname);
+        }
     }
 }

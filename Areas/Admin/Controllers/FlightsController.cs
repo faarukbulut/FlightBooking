@@ -40,7 +40,19 @@ namespace FlightBooking.Areas.Admin.Controllers
             var flight = await _flightService.GetFlightByIdAsync(id);
             var passengers = await _flightService.GetFlightDetailsWithPassengersAsync(id);
 
-            ViewBag.Flight = flight;
+            ViewBag.FlightNumber = flight?.FlightNumber ?? "—";
+            ViewBag.AirlineCode = flight?.AirlineCode ?? "—";
+            ViewBag.DepartureAirportCode = flight?.DepartureAirportCode ?? "—";
+            ViewBag.ArrivalAirportCode = flight?.ArrivalAirportCode ?? "—";
+            ViewBag.DepartureTime = flight?.DepartureTime;   // DateTime? olarak gider
+            ViewBag.ArrivalTime = flight?.ArrivalTime;
+            ViewBag.TotalSeats = flight?.TotalSeats ?? 0;
+            ViewBag.Status = flight?.Status ?? "—";
+
+            TempData["FlightNumber"] = flight.FlightNumber;
+            TempData["DepartureTime"] = flight.DepartureTime;
+            TempData["ArrivalTime"] = flight.ArrivalTime;
+
             return View(passengers);
         }
     }
