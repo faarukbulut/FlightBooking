@@ -1,5 +1,6 @@
 using System.Reflection;
 using FlightBooking.Services.BookingServices;
+using FlightBooking.Services.CheckInServices;
 using FlightBooking.Services.FlightServices;
 using FlightBooking.Settings;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<ICheckInService, CheckInService>();
 
 builder.Services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
 
