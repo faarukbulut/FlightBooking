@@ -25,6 +25,7 @@ namespace FlightBooking.Areas.Admin.Controllers
             ViewBag.ArrivalAirportName = value.ArrivalAirportName;
             ViewBag.DepartureTime = value.DepartureTime;
             ViewBag.ArrivalTime = value.ArrivalTime;
+            ViewBag.AirlineCode = value.AirlineCode;
 
             return View();
         }
