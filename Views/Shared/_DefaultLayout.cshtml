@@ -9,6 +9,7 @@
     <body>
         @await Component.InvokeAsync("_DefaultHeaderComponentPartial")
         <main>
+            @RenderBody()
             @await Component.InvokeAsync("_DefaultSliderComponentPartial")
             @await Component.InvokeAsync("_BookingAreaComponentPartial")
             @await Component.InvokeAsync("_DefaultFeatureSectionComponentPartial")
@@ -17,6 +18,7 @@
             @await Component.InvokeAsync("_DefaultPopularDestinationsComponentPartial")
             @await Component.InvokeAsync("_DefaultServiceComponentPartial")
             @await Component.InvokeAsync("_DefaultFlightStatusComponentPartial")
+            @await Component.InvokeAsync("_DefaultFrequantlyAskedQuestionComponentPartial")
         </main>
 
         <footer>
@@ -129,4 +131,4 @@
     </body>
 </html>
 
-@RenderBody()
+
