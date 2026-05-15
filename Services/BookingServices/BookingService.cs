@@ -17,12 +17,52 @@ namespace FlightBooking.Services.BookingServices
             var database = client.GetDatabase(_databaseSettings.DatabaseName);
 
             _flightCollection = database.GetCollection<Flight>(_databaseSettings.FlightCollectionName);
-            //_bookingCollection = database.GetCollection<Booking>(_databaseSettings.BookingCollectionName);
+            _bookingCollection = database.GetCollection<Booking>(_databaseSettings.BookingCollectionName);
         }
 
-        public Task CreateBookingAsync(CreateBookingDto createBookingDto)
+        public async Task CreateBookingAsync(CreateBookingDto dto)
         {
-            throw new NotImplementedException();
+            var flight = await _flightCollection.Find(x => x.FlightId == dto.FlightId).FirstOrDefaultAsync();
+
+            //if(flight == null)
+            //{
+            //    throw new Exception("Uçuş bulunamadı.");
+            //}
+
+            var passengerCount = dto.Passengers.Count;
+
+            //if(flight.AvailableSeats < passengerCount)
+            //{
+            //    throw new Exception("Yeterli koltuk yok");
+            //}
+
+            var passengers = dto.Passengers.Select(x => new Passenger
+            {
+                Name = x.Name,
+                Surname = x.Surname,
+                BirthDate = x.BirthDate,
+                Gender = x.Gender,
+                PassengerType = x.PassengerType
+            }).ToList();
+
+            var totalPrice = passengerCount * flight.BasePrice;
+
+            var booking = new Booking
+            {
+                FlightId = dto.FlightId,
+                Passengers = passengers,
+                ContactName = dto.ContactName,
+                ContactEmail = dto.ContactEmail,
+                ContactPhone = dto.ContactPhone,
+                TotalPrice = totalPrice,
+                BookingDate = DateTime.Now,
+                Status = "Confirmed"
+            };
+
+            await _bookingCollection.InsertOneAsync(booking);
+
+            //var update = Builders<Flight>.Update.Inc(x => x.AvailableSeats, -passengerCount);
+            //await _flightCollection.UpdateOneAsync(x => x.FlightId == dto.FlightId, update);
         }
     }
 }
