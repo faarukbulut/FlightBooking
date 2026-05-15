@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 
-namespace FlightBooking.Services.MLServices
+namespace FlightBooking.MLServices
 {
     public class FlightMLService
     {
