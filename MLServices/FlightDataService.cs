@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FlightBooking.MLModels;
+using FlightBooking.MLModels.ClassificationModels;
+using FlightBooking.MLModels.RegressionModels;
 using FlightBooking.Settings;
 using MongoDB.Driver;
 
@@ -21,16 +23,31 @@ namespace FlightBooking.MLServices
             return await _collection.Find(x => true).ToListAsync();
         }
 
-        public async Task<List<FlightData>> ConvertToMlDataAsync()
+        public async Task<List<FlightClassificationData>> ConvertToMlClassificationDataAsync()
         {
             var rawData = await GetAllAsync();
 
-            var mlData = rawData.Select(x => new FlightData
+            var mlData = rawData.Select(x => new FlightClassificationData
             {
                 Month = DateTime.Parse(x.FlightDate).Month,
                 DayOfWeek = (float)DateTime.Parse(x.FlightDate).DayOfWeek,
                 FlightType = x.FlightType == "Morning" ? 0 : 1,
                 IsFull = x.PassengerCount >= x.Capacity * 0.9
+            }).ToList();
+
+            return mlData;
+        }
+
+        public async Task<List<FlightRegressionData>> ConvertToMlRegressionDataAsync()
+        {
+            var rawData = await GetAllAsync();
+
+            var mlData = rawData.Select(x => new FlightRegressionData
+            {
+                Month = DateTime.Parse(x.FlightDate).Month,
+                DayOfWeek = (float)DateTime.Parse(x.FlightDate).DayOfWeek,
+                FlightType = x.FlightType == "Morning" ? 0 : 1,
+                PassengerCount = x.PassengerCount
             }).ToList();
 
             return mlData;

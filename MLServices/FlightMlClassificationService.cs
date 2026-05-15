@@ -1,26 +1,26 @@
-﻿using FlightBooking.MLModels;
+﻿using FlightBooking.MLModels.ClassificationModels;
 using Microsoft.ML;
 
 namespace FlightBooking.MLServices
 {
-    public class FlightMlService
+    public class FlightMlClassificationService
     {
         private readonly MLContext _context;
         private ITransformer _model;
 
-        public FlightMlService()
+        public FlightMlClassificationService()
         {
             _context = new MLContext();
         }
 
-        public void Train(List<FlightData> dataList)
+        public void Train(List<FlightClassificationData> dataList)
         {
             var data = _context.Data.LoadFromEnumerable(dataList);
 
             var pipeline = _context.Transforms.Concatenate("Features",
-                    nameof(FlightData.Month),
-                    nameof(FlightData.DayOfWeek),
-                    nameof(FlightData.FlightType))
+                    nameof(FlightClassificationData.Month),
+                    nameof(FlightClassificationData.DayOfWeek),
+                    nameof(FlightClassificationData.FlightType))
                 .Append(_context.BinaryClassification.Trainers.SdcaLogisticRegression(
                     labelColumnName: "IsFull",
                     featureColumnName: "Features"));
@@ -28,9 +28,9 @@ namespace FlightBooking.MLServices
             _model = pipeline.Fit(data);
         }
 
-        public FlightPrediction Predict(FlightData input)
+        public FlightClassificationPrediction Predict(FlightClassificationData input)
         {
-            var engine = _context.Model.CreatePredictionEngine<FlightData, FlightPrediction>(_model);
+            var engine = _context.Model.CreatePredictionEngine<FlightClassificationData, FlightClassificationPrediction>(_model);
 
             return engine.Predict(input);
         }

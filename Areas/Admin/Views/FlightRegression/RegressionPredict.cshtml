@@ -1,0 +1,25 @@
+﻿@model List<string>
+@{
+    ViewData["Title"] = "RegressionPredict";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<main class="main-content" id="main-content">
+	<h2>2027 Ocak Uçuş Tahminleri</h2>
+
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>Tahmin</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>@item</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</main>

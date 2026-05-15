@@ -1,6 +1,6 @@
-﻿namespace FlightBooking.MLModels
+﻿namespace FlightBooking.MLModels.ClassificationModels
 {
-    public class FlightPrediction
+    public class FlightClassificationPrediction
     {
         public bool PredictedLabel { get; set; }
         public float Probability { get; set; }

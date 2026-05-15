@@ -1,10 +1,10 @@
-﻿namespace FlightBooking.MLModels
+﻿namespace FlightBooking.MLModels.RegressionModels
 {
-    public class FlightData
+    public class FlightRegressionData
     {
         public float Month { get; set; }
         public float DayOfWeek { get; set; }
         public float FlightType { get; set; }
-        public bool IsFull { get; set; }
+        public float PassengerCount { get; set; }
     }
 }

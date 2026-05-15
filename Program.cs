@@ -12,7 +12,8 @@ builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ICheckInService, CheckInService>();
 
-builder.Services.AddSingleton<FlightMlService>();
+builder.Services.AddSingleton<FlightMlClassificationService>();
+builder.Services.AddSingleton<FlightMlRegressionService>();
 builder.Services.AddScoped<FlightDataService>();
 
 builder.Services.AddAutoMapper(cfg => { }, Assembly.GetExecutingAssembly());
