@@ -58,17 +58,18 @@ namespace FlightBooking.Services.FlightServices
 
             var passengers = bookings.SelectMany(b => b.Passengers.Select(p => new PassengerListItemDto
             {
+                PassengerId = p.PassengerId,
                 Name = p.Name,
                 Surname = p.Surname,
                 Email = b.ContactEmail,
                 Gender = p.Gender,
+                PnrNumber = b.PnrNumber,
                 PassengerType = p.PassengerType,
-                Pnr = b.BookingId,
                 Phone = b.ContactPhone,
                 SeatNumber = p.SeatNumber,
                 CheckInStatus = p.CheckInStatus,
                 //PaymentStatus = p.PaymentStatus,
-                TicketStatus = p.TicketStatus
+                TicketStatus = p.TicketStatus,
             })).ToList();
 
             return passengers;
