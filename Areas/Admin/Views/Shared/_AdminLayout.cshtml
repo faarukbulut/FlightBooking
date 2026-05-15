@@ -1,678 +1,146 @@
-﻿
+﻿@* ================================================================
+   Areas/Admin/Views/Layout/AdminLayout.cshtml
+   ================================================================
+   KURALLAR:
+   • RenderSection → sadece Layout sayfasında çalışır.
+     ViewComponent (partial) içinde çağrılamaz.
+   • _AdminHeadComponentPartial : <head> içeriğini render eder,
+     <head> etiketinin kendisini AÇMAZ, sadece içerik döker.
+   • Ortak JS (sidebar/dropdown/toast) burada tanımlanır;
+     sayfa view'larında tekrarlanmaz.
+   • Sayfa bazlı CSS  →  @section Styles  { }  (</head> öncesi)
+   • Sayfa bazlı JS   →  @section Scripts { }  (</body> öncesi)
+================================================================ *@
+
 @{
     Layout = null;
 }
 
 <!DOCTYPE html>
 <html lang="tr">
-@await Component.InvokeAsync("_AdminHeadComponentPartial")
+<head>
+    @* ── Meta, Bootstrap CSS, Bootstrap Icons, Google Fonts, global <style> ── *@
+    @await Component.InvokeAsync("_AdminHeadComponentPartial")
 
+    @* ── Sayfa bazlı <style> blokları buraya inject edilir ─────────────────── *@
+    @RenderSection("Styles", required: false)
+</head>
 <body>
 
-<!-- ================================================================
-     SIDEBAR
-================================================================ -->
-<aside class="sidebar" id="sidebar">
-
-  <!-- Brand -->
-  <a href="#" class="sidebar-brand" onclick="return false;">
-    <div class="brand-icon"><i class="bi bi-airplane-fill"></i></div>
-    <div class="brand-text">
-      <span class="brand-name">SkyAdmin</span>
-      <span class="brand-sub">Airline Management</span>
-    </div>
-  </a>
-
-  <!-- Nav -->
-  <nav class="sidebar-nav">
-
-    <!-- Main -->
-    <div class="nav-label">ANA MENÜ</div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-grid-1x2-fill icon"></i>
-        <span class="label">Dashboard</span>
-        <span class="nav-badge">5</span>
-      </a>
-    </div>
-
-    <!-- Flights (active, with submenu) -->
-    <div class="nav-item-wrap">
-      <div class="nav-link-item active" id="flights-toggle" onclick="toggleSub(this,'flights-sub')">
-        <i class="bi bi-airplane icon"></i>
-        <span class="label">Flights</span>
-        <i class="bi bi-chevron-down chevron open ms-auto" id="flights-chev"></i>
-      </div>
-      <div class="sub-menu open" id="flights-sub">
-        <a class="sub-menu-link active" href="#" onclick="return false;"><i class="bi bi-dot"></i>Uçuş Yönetimi</a>
-        <a class="sub-menu-link" href="#" onclick="return false;"><i class="bi bi-dot"></i>Tarifeler</a>
-        <a class="sub-menu-link" href="#" onclick="return false;"><i class="bi bi-dot"></i>Uçuş Durumları</a>
-      </div>
-    </div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-geo-alt-fill icon"></i>
-        <span class="label">Destinations</span>
-      </a>
-    </div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-boxes icon"></i>
-        <span class="label">Aircraft Fleet</span>
-        <span class="nav-badge">12</span>
-      </a>
-    </div>
-
-    <!-- Operations -->
-    <div class="nav-label">OPERASYONLAR</div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-people-fill icon"></i>
-        <span class="label">Passengers</span>
-      </a>
-    </div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-ticket-detailed-fill icon"></i>
-        <span class="label">Bookings</span>
-        <span class="nav-badge">38</span>
-      </a>
-    </div>
-
-    <div class="nav-item-wrap">
-      <div class="nav-link-item" onclick="toggleSub(this,'checkin-sub')">
-        <i class="bi bi-check2-square icon"></i>
-        <span class="label">Check-In Mgmt</span>
-        <i class="bi bi-chevron-down chevron ms-auto"></i>
-      </div>
-      <div class="sub-menu" id="checkin-sub">
-        <a class="sub-menu-link" href="#" onclick="return false;"><i class="bi bi-dot"></i>Online Check-In</a>
-        <a class="sub-menu-link" href="#" onclick="return false;"><i class="bi bi-dot"></i>Kiosk Yönetimi</a>
-      </div>
-    </div>
-
-    <!-- Analytics -->
-    <div class="nav-label">ANALİTİK</div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-tag-fill icon"></i>
-        <span class="label">Offers & Discounts</span>
-      </a>
-    </div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-bar-chart-fill icon"></i>
-        <span class="label">Reports</span>
-      </a>
-    </div>
-
-    <!-- System -->
-    <div class="nav-label">SİSTEM</div>
-
-    <div class="nav-item-wrap">
-      <a class="nav-link-item" href="#" onclick="setActive(this);return false;">
-        <i class="bi bi-gear-fill icon"></i>
-        <span class="label">Settings</span>
-      </a>
-    </div>
-
-  </nav>
-
-  <!-- Sidebar footer / toggle -->
-  <div class="sidebar-footer">
-    <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
-      <i class="bi bi-arrow-bar-left" id="toggle-icon" style="font-size:16px;"></i>
-      <span id="toggle-label" style="transition:opacity .22s">Küçült</span>
-    </button>
-  </div>
-
-</aside>
-
-<!-- ================================================================
-     TOPBAR
-================================================================ -->
-<header class="topbar" id="topbar">
-
-  <!-- Search -->
-  <div class="topbar-search">
-    <i class="bi bi-search search-icon"></i>
-    <input type="text" placeholder="Uçuş, yolcu, rezervasyon ara…" />
-  </div>
-
-  <div class="topbar-spacer"></div>
-
-  <!-- Notifications -->
-  <div class="dd-wrapper">
-    <button class="tb-icon-btn" onclick="toggleDD('notif-dd')">
-      <i class="bi bi-bell-fill"></i>
-      <span class="tb-badge count">4</span>
-    </button>
-    <div class="dropdown-menu-custom" id="notif-dd">
-      <div style="padding:8px 12px 6px;font-size:11px;font-weight:700;color:var(--gray-500);letter-spacing:.6px;text-transform:uppercase;">Bildirimler</div>
-      <a href="#" onclick="return false;"><i class="bi bi-exclamation-triangle-fill" style="color:#F59E0B;"></i>TK330 gecikmeli – 45 dk</a>
-      <a href="#" onclick="return false;"><i class="bi bi-x-circle-fill" style="color:#EF4444;"></i>TK450 iptal edildi</a>
-      <a href="#" onclick="return false;"><i class="bi bi-person-check-fill" style="color:#10B981;"></i>38 yeni rezervasyon</a>
-      <a href="#" onclick="return false;"><i class="bi bi-airplane-fill" style="color:var(--accent);"></i>TK102 boarding başladı</a>
-      <div class="divider"></div>
-      <a href="#" onclick="return false;" style="justify-content:center;color:var(--accent);font-weight:600;">Tümünü Gör</a>
-    </div>
-  </div>
-
-  <!-- Messages -->
-  <div class="dd-wrapper">
-    <button class="tb-icon-btn" onclick="toggleDD('msg-dd')">
-      <i class="bi bi-chat-fill"></i>
-      <span class="tb-badge"></span>
-    </button>
-    <div class="dropdown-menu-custom" id="msg-dd">
-      <div style="padding:8px 12px 6px;font-size:11px;font-weight:700;color:var(--gray-500);letter-spacing:.6px;text-transform:uppercase;">Mesajlar</div>
-      <a href="#" onclick="return false;"><i class="bi bi-person-fill" style="color:var(--accent);"></i>Operasyon ekibinden mesaj</a>
-      <a href="#" onclick="return false;"><i class="bi bi-headset" style="color:#10B981;"></i>Destek talebi #1024</a>
-      <div class="divider"></div>
-      <a href="#" onclick="return false;" style="justify-content:center;color:var(--accent);font-weight:600;">Tüm Mesajlar</a>
-    </div>
-  </div>
-
-  <!-- User -->
-  <div class="dd-wrapper">
-    <button class="user-pill" onclick="toggleDD('user-dd')">
-      <div class="user-avatar">AK</div>
-      <div class="user-info">
-        <span class="user-name">Ahmet Kaya</span>
-        <span class="user-role">Süper Admin</span>
-      </div>
-      <i class="bi bi-chevron-down" style="font-size:11px;color:var(--gray-500);margin-left:4px;"></i>
-    </button>
-    <div class="dropdown-menu-custom" id="user-dd">
-      <a href="#" onclick="return false;"><i class="bi bi-person-fill"></i>Profilim</a>
-      <a href="#" onclick="return false;"><i class="bi bi-shield-lock-fill"></i>Güvenlik</a>
-      <a href="#" onclick="return false;"><i class="bi bi-gear-fill"></i>Ayarlar</a>
-      <div class="divider"></div>
-      <a href="#" onclick="return false;" class="danger"><i class="bi bi-box-arrow-right"></i>Çıkış Yap</a>
-    </div>
-  </div>
-
-</header>
-
-<!-- ================================================================
-     MAIN CONTENT
-================================================================ -->
-<main class="main-content" id="main-content">
-
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="page-title-group">
-      <div class="page-breadcrumb">
-        <i class="bi bi-grid-1x2-fill"></i>
-        <span>Dashboard</span>
-        <i class="bi bi-chevron-right sep"></i>
-        <span style="color:var(--accent);">Flights Management</span>
-      </div>
-      <h1 class="page-title">Flights Management</h1>
-      <p class="page-desc">Sistemde kayıtlı uçuşları görüntüleyebilir, düzenleyebilir veya yeni uçuş ekleyebilirsiniz.</p>
-    </div>
-    <button class="btn-add" onclick="openModal()">
-      <i class="bi bi-plus-lg"></i>
-      <span>Yeni Uçuş Ekle</span>
-    </button>
-  </div>
-
-  <!-- Stat Cards -->
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-icon blue"><i class="bi bi-airplane-fill"></i></div>
-      <div class="stat-body">
-        <div class="stat-value">248</div>
-        <div class="stat-label">Toplam Uçuş</div>
-        <div class="stat-change up"><i class="bi bi-arrow-up-short"></i>+12 bu hafta</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon green"><i class="bi bi-check-circle-fill"></i></div>
-      <div class="stat-body">
-        <div class="stat-value">192</div>
-        <div class="stat-label">Tamamlanan</div>
-        <div class="stat-change up"><i class="bi bi-arrow-up-short"></i>%77 oran</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon orange"><i class="bi bi-clock-fill"></i></div>
-      <div class="stat-body">
-        <div class="stat-value">31</div>
-        <div class="stat-label">Gecikmeli</div>
-        <div class="stat-change down"><i class="bi bi-arrow-up-short"></i>+3 dün</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon red"><i class="bi bi-x-circle-fill"></i></div>
-      <div class="stat-body">
-        <div class="stat-value">14</div>
-        <div class="stat-label">İptal Edilen</div>
-        <div class="stat-change up"><i class="bi bi-arrow-down-short"></i>-2 geçen ay</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Table Card -->
-  <div class="table-card">
-
-    <!-- Header / Filters -->
-    <div class="table-card-header">
-      <div class="tbl-search">
-        <i class="bi bi-search si"></i>
-        <input type="text" id="searchInput" placeholder="Uçuş no, şehir veya durum ara…" oninput="filterTable()" />
-      </div>
-
-      <select class="filter-select" id="statusFilter" onchange="filterTable()">
-        <option value="">Tüm Durumlar</option>
-        <option value="Boarding">Boarding</option>
-        <option value="Planlandı">Planlandı</option>
-        <option value="Gecikmeli">Gecikmeli</option>
-        <option value="İptal">İptal</option>
-      </select>
-
-      <select class="filter-select" id="cityFilter" onchange="filterTable()">
-        <option value="">Tüm Şehirler</option>
-        <option value="İstanbul">İstanbul</option>
-        <option value="Paris">Paris</option>
-        <option value="Roma">Roma</option>
-        <option value="Londra">Londra</option>
-        <option value="Berlin">Berlin</option>
-        <option value="Amsterdam">Amsterdam</option>
-        <option value="Madrid">Madrid</option>
-        <option value="Frankfurt">Frankfurt</option>
-      </select>
-
-      <span class="tbl-count" id="rowCount">10 uçuş gösteriliyor</span>
-    </div>
-
-    <!-- Table -->
-    <div style="overflow-x:auto;">
-      <table class="flights-table" id="flightsTable">
-        <thead>
-          <tr>
-            <th>UÇUŞ NO</th>
-            <th>GÜZERGAH</th>
-            <th>KALKIŞ</th>
-            <th>VARIŞ</th>
-            <th>UÇAK MODELİ</th>
-            <th>KAPI</th>
-            <th>DURUM</th>
-            <th>İŞLEMLER</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <!-- Rows injected by JS -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Footer / Pagination -->
-    <div class="table-card-footer">
-      <span class="footer-info" id="footerInfo">1–10 / 10 uçuş</span>
-      <ul class="pagination-list" id="paginationList">
-        <!-- Injected by JS -->
-      </ul>
-    </div>
-
-  </div><!-- /table-card -->
-
-</main>
-
-<!-- ================================================================
-     ADD FLIGHT MODAL
-================================================================ -->
-<div class="modal-overlay" id="flightModal">
-  <div class="modal-box">
-    <div class="modal-head">
-      <span class="modal-title"><i class="bi bi-airplane-fill" style="color:var(--accent);margin-right:8px;"></i>Yeni Uçuş Ekle</span>
-      <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Uçuş No</label>
-          <input class="form-control-custom" type="text" placeholder="TK000" id="newFlightNo" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Uçak Modeli</label>
-          <select class="form-control-custom" id="newModel">
-            <option>Airbus A320</option>
-            <option>Airbus A321</option>
-            <option>Boeing 737</option>
-            <option>Boeing 777</option>
-            <option>Boeing 787</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Kalkış Şehri</label>
-          <input class="form-control-custom" type="text" placeholder="İstanbul" id="newDep" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Varış Şehri</label>
-          <input class="form-control-custom" type="text" placeholder="Paris" id="newArr" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Kalkış Saati</label>
-          <input class="form-control-custom" type="time" id="newDepTime" value="09:00" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Varış Saati</label>
-          <input class="form-control-custom" type="time" id="newArrTime" value="12:00" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Kapı (Gate)</label>
-          <input class="form-control-custom" type="text" placeholder="G01" id="newGate" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Durum</label>
-          <select class="form-control-custom" id="newStatus">
-            <option>Planlandı</option>
-            <option>Boarding</option>
-            <option>Gecikmeli</option>
-            <option>İptal</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn-cancel" onclick="closeModal()">İptal</button>
-      <button class="btn-save" onclick="saveFlight()"><i class="bi bi-check-lg" style="margin-right:6px;"></i>Kaydet</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast Container -->
-<div class="toast-container-custom" id="toastContainer"></div>
-
-<!-- ================================================================
-     SCRIPTS
-================================================================ -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-/* ============================================================
-   DATA
-============================================================ */
-let flights = [
-  { id:1,  no:'TK102', dep:'İstanbul', arr:'Paris',     depT:'10:30', arrT:'13:00', model:'Airbus A320',  gate:'G12', status:'Boarding'  },
-  { id:2,  no:'TK215', dep:'İstanbul', arr:'Roma',      depT:'11:15', arrT:'13:30', model:'Boeing 737',   gate:'G5',  status:'Planlandı' },
-  { id:3,  no:'TK330', dep:'İstanbul', arr:'Londra',    depT:'12:40', arrT:'15:10', model:'Airbus A321',  gate:'G8',  status:'Gecikmeli' },
-  { id:4,  no:'TK450', dep:'İstanbul', arr:'Berlin',    depT:'14:20', arrT:'16:50', model:'Boeing 737',   gate:'G2',  status:'İptal'     },
-  { id:5,  no:'TK561', dep:'İstanbul', arr:'Amsterdam', depT:'07:00', arrT:'10:20', model:'Boeing 777',   gate:'G15', status:'Planlandı' },
-  { id:6,  no:'TK672', dep:'İstanbul', arr:'Madrid',    depT:'09:45', arrT:'13:15', model:'Airbus A320',  gate:'G3',  status:'Boarding'  },
-  { id:7,  no:'TK789', dep:'İstanbul', arr:'Frankfurt', depT:'15:30', arrT:'18:00', model:'Boeing 787',   gate:'G11', status:'Planlandı' },
-  { id:8,  no:'TK810', dep:'Paris',    arr:'İstanbul',  depT:'14:00', arrT:'18:30', model:'Airbus A321',  gate:'G7',  status:'Gecikmeli' },
-  { id:9,  no:'TK923', dep:'Londra',   arr:'İstanbul',  depT:'08:20', arrT:'14:50', model:'Boeing 737',   gate:'G9',  status:'Planlandı' },
-  { id:10, no:'TK035', dep:'Berlin',   arr:'İstanbul',  depT:'16:10', arrT:'20:45', model:'Airbus A320',  gate:'G6',  status:'İptal'     },
-];
-
-let nextId = 11;
-let currentPage = 1;
-const perPage = 6;
-
-/* ============================================================
-   STATUS HELPERS
-============================================================ */
-function statusBadge(s) {
-  const map = {
-    'Boarding':  { cls:'status-boarding',  icon:'bi-check2-circle' },
-    'Planlandı': { cls:'status-scheduled', icon:'bi-calendar-check' },
-    'Gecikmeli': { cls:'status-delayed',   icon:'bi-exclamation-triangle' },
-    'İptal':     { cls:'status-cancelled', icon:'bi-x-circle' },
-  };
-  const m = map[s] || { cls:'status-scheduled', icon:'bi-circle' };
-  return `<span class="status-badge ${m.cls}"><span class="dot"></span>${s}</span>`;
-}
-
-/* ============================================================
-   RENDER TABLE
-============================================================ */
-function getFiltered() {
-  const q = (document.getElementById('searchInput').value || '').toLowerCase();
-  const sf = document.getElementById('statusFilter').value;
-  const cf = document.getElementById('cityFilter').value;
-
-  return flights.filter(f => {
-    const matchQ  = !q  || [f.no,f.dep,f.arr,f.status,f.model,f.gate].some(v => v.toLowerCase().includes(q));
-    const matchS  = !sf || f.status === sf;
-    const matchC  = !cf || f.dep === cf || f.arr === cf;
-    return matchQ && matchS && matchC;
-  });
-}
-
-function renderTable() {
-  const filtered = getFiltered();
-  const total = filtered.length;
-  const totalPages = Math.max(1, Math.ceil(total / perPage));
-  if (currentPage > totalPages) currentPage = totalPages;
-
-  const slice = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
-
-  const tbody = document.getElementById('tableBody');
-  if (slice.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--gray-300);font-size:14px;"><i class="bi bi-search" style="font-size:24px;display:block;margin-bottom:8px;"></i>Sonuç bulunamadı.</td></tr>`;
-  } else {
-    tbody.innerHTML = slice.map(f => `
-      <tr data-id="${f.id}">
-        <td><div class="flight-no"><span class="flight-no-dot"></span>${f.no}</div></td>
-        <td>
-          <div class="route-cell">
-            <span style="font-weight:600;">${f.dep}</span>
-            <i class="bi bi-arrow-right route-arrow"></i>
-            <span style="font-weight:600;">${f.arr}</span>
-          </div>
-        </td>
-        <td><span class="time-cell">${f.depT}</span></td>
-        <td><span class="time-cell">${f.arrT}</span></td>
-        <td><span class="model-badge"><i class="bi bi-airplane"></i>${f.model}</span></td>
-        <td><span class="gate-cell">${f.gate}</span></td>
-        <td>${statusBadge(f.status)}</td>
-        <td>
-          <div class="actions-cell">
-            <button class="act-btn act-view" onclick="viewFlight(${f.id})"><i class="bi bi-eye-fill"></i><span class="btn-label">Görüntüle</span></button>
-            <button class="act-btn act-edit" onclick="editFlight(${f.id})"><i class="bi bi-pencil-fill"></i><span class="btn-label">Düzenle</span></button>
-            <button class="act-btn act-del"  onclick="deleteFlight(${f.id})"><i class="bi bi-trash-fill"></i><span class="btn-label">Sil</span></button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  // Update counts
-  document.getElementById('rowCount').textContent = `${total} uçuş bulundu`;
-  const from = total === 0 ? 0 : (currentPage - 1) * perPage + 1;
-  const to   = Math.min(currentPage * perPage, total);
-  document.getElementById('footerInfo').textContent = `${from}–${to} / ${total} uçuş`;
-
-  renderPagination(totalPages);
-}
-
-function filterTable() {
-  currentPage = 1;
-  renderTable();
-}
-
-/* ============================================================
-   PAGINATION
-============================================================ */
-function renderPagination(totalPages) {
-  const ul = document.getElementById('paginationList');
-  let html = '';
-
-  html += `<li class="${currentPage===1?'disabled':''}"><span onclick="${currentPage>1?'goPage(currentPage-1)':''}" style="cursor:${currentPage===1?'default':'pointer'}"><i class="bi bi-chevron-left" style="font-size:11px;"></i></span></li>`;
-
-  for (let p = 1; p <= totalPages; p++) {
-    html += `<li class="${p===currentPage?'active':''}"><a onclick="goPage(${p})">${p}</a></li>`;
-  }
-
-  html += `<li class="${currentPage===totalPages?'disabled':''}"><span onclick="${currentPage<totalPages?'goPage(currentPage+1)':''}" style="cursor:${currentPage===totalPages?'default':'pointer'}"><i class="bi bi-chevron-right" style="font-size:11px;"></i></span></li>`;
-
-  ul.innerHTML = html;
-}
-
-function goPage(p) {
-  currentPage = p;
-  renderTable();
-}
-
-/* ============================================================
-   SIDEBAR TOGGLE
-============================================================ */
-let sidebarOpen = true;
-
-function toggleSidebar() {
-  sidebarOpen = !sidebarOpen;
-  const sb  = document.getElementById('sidebar');
-  const tb  = document.getElementById('topbar');
-  const mc  = document.getElementById('main-content');
-  const ico = document.getElementById('toggle-icon');
-  const lbl = document.getElementById('toggle-label');
-
-  if (sidebarOpen) {
-    sb.classList.remove('collapsed');
-    tb.classList.remove('collapsed');
-    mc.classList.remove('collapsed');
-    ico.classList.replace('bi-arrow-bar-right','bi-arrow-bar-left');
-    lbl.textContent = 'Küçült';
-  } else {
-    sb.classList.add('collapsed');
-    tb.classList.add('collapsed');
-    mc.classList.add('collapsed');
-    ico.classList.replace('bi-arrow-bar-left','bi-arrow-bar-right');
-    lbl.textContent = '';
-  }
-}
-
-/* Submenu toggle */
-function toggleSub(el, subId) {
-  const sub  = document.getElementById(subId);
-  const chev = el.querySelector('.chevron');
-  sub.classList.toggle('open');
-  if (chev) chev.classList.toggle('open');
-}
-
-/* Active nav */
-function setActive(el) {
-  document.querySelectorAll('.nav-link-item').forEach(n => n.classList.remove('active'));
-  el.classList.add('active');
-}
-
-/* ============================================================
-   DROPDOWN TOGGLE
-============================================================ */
-function toggleDD(id) {
-  const dd = document.getElementById(id);
-  const isOpen = dd.classList.contains('show');
-  // close all
-  document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
-  if (!isOpen) dd.classList.add('show');
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.dd-wrapper')) {
-    document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
-  }
-});
-
-/* ============================================================
-   MODAL
-============================================================ */
-function openModal() {
-  document.getElementById('flightModal').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('flightModal').classList.remove('open');
-}
-
-function saveFlight() {
-  const no      = document.getElementById('newFlightNo').value.trim();
-  const model   = document.getElementById('newModel').value;
-  const dep     = document.getElementById('newDep').value.trim();
-  const arr     = document.getElementById('newArr').value.trim();
-  const depT    = document.getElementById('newDepTime').value;
-  const arrT    = document.getElementById('newArrTime').value;
-  const gate    = document.getElementById('newGate').value.trim();
-  const status  = document.getElementById('newStatus').value;
-
-  if (!no || !dep || !arr || !gate) {
-    showToast('Lütfen tüm zorunlu alanları doldurun.', 'warning');
-    return;
-  }
-
-  flights.push({ id: nextId++, no, dep, arr, depT, arrT, model, gate, status });
-  closeModal();
-  renderTable();
-  showToast(`${no} uçuşu başarıyla eklendi!`, 'success');
-
-  // Reset
-  ['newFlightNo','newDep','newArr','newGate'].forEach(id => document.getElementById(id).value = '');
-}
-
-/* Close modal on overlay click */
-document.getElementById('flightModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-/* ============================================================
-   ROW ACTIONS
-============================================================ */
-function viewFlight(id) {
-  const f = flights.find(x => x.id === id);
-  if (!f) return;
-  showToast(`${f.no}: ${f.dep} → ${f.arr} | ${f.depT} – ${f.arrT} | ${f.status}`, 'info');
-}
-
-function editFlight(id) {
-  const f = flights.find(x => x.id === id);
-  if (!f) return;
-  showToast(`${f.no} düzenleme modu (demo)`, 'warning');
-}
-
-function deleteFlight(id) {
-  const f = flights.find(x => x.id === id);
-  if (!f) return;
-  if (confirm(`"${f.no}" uçuşunu silmek istediğinize emin misiniz?`)) {
-    flights = flights.filter(x => x.id !== id);
-    renderTable();
-    showToast(`${f.no} uçuşu silindi.`, 'danger');
-  }
-}
-
-/* ============================================================
-   TOAST
-============================================================ */
-function showToast(msg, type = 'info') {
-  const icons = { success:'bi-check-circle-fill', danger:'bi-x-circle-fill', warning:'bi-exclamation-triangle-fill', info:'bi-info-circle-fill' };
-  const container = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = 'toast-item';
-  t.innerHTML = `<i class="bi ${icons[type]} toast-icon ${type}"></i><span>${msg}</span>`;
-  container.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(20px)'; t.style.transition='.3s'; setTimeout(()=>t.remove(),320); }, 3200);
-}
-
-/* ============================================================
-   INIT
-============================================================ */
-renderTable();
-</script>
+    @* ── Sol Menü ──────────────────────────────────────────────────────────── *@
+    @await Component.InvokeAsync("_AdminSidebarComponentPartial")
+
+    @* ── Üst Menü ──────────────────────────────────────────────────────────── *@
+    @await Component.InvokeAsync("_AdminTopbarComponentPartial")
+
+    @* ── Sayfa İçeriği (@RenderBody) ───────────────────────────────────────── *@
+    @RenderBody()
+
+    @* ── Toast Container — tüm sayfalarda ortak ────────────────────────────── *@
+    <div class="toast-container-custom" id="toastContainer"></div>
+
+    @* ── Ortak JS Kütüphaneleri ─────────────────────────────────────────────── *@
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    @* ── Ortak Admin JS ─────────────────────────────────────────────────────── *@
+    <script>
+
+        /* ============================================================
+           SIDEBAR TOGGLE
+           Kullanım: onclick="toggleSidebar()"  (sidebar footer butonu)
+        ============================================================ */
+        let sidebarOpen = true;
+
+        function toggleSidebar() {
+            sidebarOpen = !sidebarOpen;
+
+            const sb  = document.getElementById('sidebar');
+            const tb  = document.getElementById('topbar');
+            const mc  = document.getElementById('main-content');
+            const ico = document.getElementById('toggle-icon');
+            const lbl = document.getElementById('toggle-label');
+
+            if (sidebarOpen) {
+                sb?.classList.remove('collapsed');
+                tb?.classList.remove('collapsed');
+                mc?.classList.remove('collapsed');
+                ico?.classList.replace('bi-arrow-bar-right', 'bi-arrow-bar-left');
+                if (lbl) lbl.textContent = 'Küçült';
+            } else {
+                sb?.classList.add('collapsed');
+                tb?.classList.add('collapsed');
+                mc?.classList.add('collapsed');
+                ico?.classList.replace('bi-arrow-bar-left', 'bi-arrow-bar-right');
+                if (lbl) lbl.textContent = '';
+            }
+        }
+
+        /* ── Alt menü aç/kapat ───────────────────────────────────────── */
+        function toggleSub(el, subId) {
+            const sub  = document.getElementById(subId);
+            const chev = el.querySelector('.chevron');
+            if (!sub) return;
+            sub.classList.toggle('open');
+            if (chev) chev.classList.toggle('open');
+        }
+
+        /* ── Aktif sidebar öğesi ─────────────────────────────────────── */
+        function setActive(el) {
+            document.querySelectorAll('.nav-link-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        /* ============================================================
+           DROPDOWN TOGGLE
+           Kullanım: onclick="toggleDD('notif-dd')"
+        ============================================================ */
+        function toggleDD(id) {
+            const dd     = document.getElementById(id);
+            const isOpen = dd.classList.contains('show');
+            // Önce tümünü kapat
+            document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            if (!isOpen) dd.classList.add('show');
+        }
+
+        /* Dropdown dışına tıklandığında kapat */
+        document.addEventListener('click', e => {
+            if (!e.target.closest('.dd-wrapper')) {
+                document.querySelectorAll('.dropdown-menu-custom').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        /* ============================================================
+           TOAST
+           Kullanım: showToast('Mesaj metni', 'success')
+           type → 'success' | 'danger' | 'warning' | 'info'
+           Tüm sayfa view'larından çağrılabilir.
+        ============================================================ */
+        function showToast(msg, type = 'info') {
+            const icons = {
+                success : 'bi-check-circle-fill',
+                danger  : 'bi-x-circle-fill',
+                warning : 'bi-exclamation-triangle-fill',
+                info    : 'bi-info-circle-fill',
+            };
+
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const t     = document.createElement('div');
+            t.className = 'toast-item';
+            t.innerHTML = `<i class="bi ${icons[type] ?? icons.info} toast-icon ${type}"></i><span>${msg}</span>`;
+            container.appendChild(t);
+
+            setTimeout(() => {
+                t.style.cssText += 'opacity:0;transform:translateY(20px);transition:.3s;';
+                setTimeout(() => t.remove(), 320);
+            }, 3200);
+        }
+
+    </script>
+
+    @* ── Sayfa bazlı <script> blokları buraya inject edilir ────────────────── *@
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>
-
-@RenderBody()
