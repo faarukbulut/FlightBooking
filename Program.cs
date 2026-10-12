@@ -3,6 +3,7 @@ using FlightBooking.MLServices;
 using FlightBooking.Services.BookingServices;
 using FlightBooking.Services.CheckInServices;
 using FlightBooking.Services.FlightServices;
+using FlightBooking.Services.NoShowServices;
 using FlightBooking.Settings;
 using Microsoft.Extensions.Options;
 
@@ -11,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ICheckInService, CheckInService>();
+builder.Services.AddScoped<NoShowService>();
 
 builder.Services.AddSingleton<FlightMlClassificationService>();
 builder.Services.AddSingleton<FlightMlRegressionService>();
