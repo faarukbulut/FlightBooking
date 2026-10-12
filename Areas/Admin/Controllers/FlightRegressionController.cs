@@ -1,7 +1,5 @@
-﻿using FlightBooking.MLModels.ClassificationModels;
-using FlightBooking.MLModels.RegressionModels;
+﻿using FlightBooking.MLModels.RegressionModels;
 using FlightBooking.MLServices;
-using FlightBooking.Services.NoShowServices;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlightBooking.Areas.Admin.Controllers
@@ -11,13 +9,11 @@ namespace FlightBooking.Areas.Admin.Controllers
     {
         private readonly FlightDataService _flightDataService;
         private readonly FlightMlRegressionService _flightMlRegressionService;
-        private readonly NoShowService _noShowService;
 
-        public FlightRegressionController(FlightDataService flightDataService, FlightMlRegressionService flightMlRegressionService, NoShowService noShowService)
+        public FlightRegressionController(FlightDataService flightDataService, FlightMlRegressionService flightMlRegressionService)
         {
             _flightDataService = flightDataService;
             _flightMlRegressionService = flightMlRegressionService;
-            _noShowService = noShowService;
         }
 
         public async Task<IActionResult> TrainRegressionModel()
@@ -60,13 +56,6 @@ namespace FlightBooking.Areas.Admin.Controllers
 
             return View(result);
         }
-
-        public async Task<IActionResult> NoShowAnalysis()
-        {
-            var values = await _noShowService.GetSlotBasedNoShowRatesAsync();
-            return View(values);
-        }
-
 
     }
 }

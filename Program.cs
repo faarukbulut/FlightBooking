@@ -13,6 +13,7 @@ builder.Services.AddScoped<IFlightService, FlightService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<ICheckInService, CheckInService>();
 builder.Services.AddScoped<NoShowService>();
+builder.Services.AddScoped<OverbookingRecommendationService>();
 
 builder.Services.AddSingleton<FlightMlClassificationService>();
 builder.Services.AddSingleton<FlightMlRegressionService>();
