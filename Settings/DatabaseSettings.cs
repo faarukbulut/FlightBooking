@@ -8,5 +8,6 @@
         public string BookingCollectionName { get; set; }
         public string CheckInCollectionName { get; set; }
         public string FlightDemandHistoriyCollectionName { get; set; }
+        public string NoShowHistoryCollectionName { get; set; }
     }
 }
